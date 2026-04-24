@@ -1,5 +1,4 @@
-﻿
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Data;
 using WebApplication1.Models;
@@ -42,8 +41,24 @@ public class StudentsController : ControllerBase
     // POST
     [Authorize]
     [HttpPost]
-    public IActionResult Create(Student student)
+    [Consumes("multipart/form-data")]
+    public IActionResult Create([FromForm] Student student,IFormFile imagefile)
     {
+        if (imagefile != null && imagefile.Length > 0)
+        {
+            string folder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
+
+            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(imagefile.FileName);
+
+            string filePath = Path.Combine(folder, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                imagefile.CopyTo(stream);
+            }
+
+            student.ImageUrl = "/images/" + fileName;
+        }
         _context.Studentsapi.Add(student);
         _context.SaveChanges();
 
@@ -53,11 +68,40 @@ public class StudentsController : ControllerBase
     // PUT
     [Authorize]
     [HttpPut("{id}")]
-    public IActionResult Update(int id, Student student)
+    [Consumes("multipart/form-data")]
+    public IActionResult Update( int id, [FromForm] Student student,IFormFile imagefile)
     {
-        if (id != student.id) return BadRequest();
+        var exist = _context.Studentsapi.Find(id);
+        if(exist == null)
+        {
+            return NotFound();
+        }
 
-        _context.Update(student);
+        exist.Admno=student.Admno;
+        exist.name = student.name;
+        exist.age = student.age;
+        exist.course = student.course;
+        exist.mark = student.mark;
+
+        if (imagefile != null && imagefile.Length > 0)
+        {
+            string folder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
+            if (!string.IsNullOrEmpty(exist.ImageUrl))
+            {
+                string oldpath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot",exist.ImageUrl.TrimStart('/'));
+                if (System.IO.File.Exists(oldpath))
+                {
+                    System.IO.File.Delete(oldpath);
+                }
+            }
+            string filename= Guid.NewGuid().ToString() + Path.GetExtension(imagefile.FileName);
+            string filepath= Path.Combine(folder,filename);
+            using (var stream = new FileStream(filepath,FileMode.Create))
+            {
+                imagefile.CopyTo(stream);
+            }
+            exist.ImageUrl = "/images/" + filename;
+        }
         _context.SaveChanges();
 
         return Ok(student);

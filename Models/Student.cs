@@ -12,6 +12,6 @@ namespace WebApplication1.Models
         public int age { get; set; }
         public string course { get; set; }
         public int mark { get; set; }
-        public string ImageUrl { get; set; }
+        public string? ImageUrl { get; set; }
     }
 }

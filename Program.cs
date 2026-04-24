@@ -187,6 +187,7 @@ app.UseHttpsRedirection();
 app.UseCors("AllowReact");
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseStaticFiles();
 
 // Swagger
 app.UseSwagger();
