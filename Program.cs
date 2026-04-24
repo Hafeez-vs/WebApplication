@@ -138,6 +138,19 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReact",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:3000")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
+
+
 // Swagger + JWT support
 builder.Services.AddSwaggerGen(options =>
 {
@@ -171,7 +184,7 @@ var app = builder.Build();
 
 // Middleware
 app.UseHttpsRedirection();
-
+app.UseCors("AllowReact");
 app.UseAuthentication();
 app.UseAuthorization();
 

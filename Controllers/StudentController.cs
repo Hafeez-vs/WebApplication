@@ -21,7 +21,7 @@ public class StudentsController : ControllerBase
     [HttpGet]
     public IActionResult GetAll()
     {
-        var data = _context.Studentsapi.ToList();
+        var data = _context.Studentsapi.OrderBy(s => s.Admno).ToList();
         return Ok(data);
     }
 
@@ -51,10 +51,11 @@ public class StudentsController : ControllerBase
     }
 
     // PUT
+    [Authorize]
     [HttpPut("{id}")]
     public IActionResult Update(int id, Student student)
     {
-        if (id != student.Admno) return BadRequest();
+        if (id != student.id) return BadRequest();
 
         _context.Update(student);
         _context.SaveChanges();
