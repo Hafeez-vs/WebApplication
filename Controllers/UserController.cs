@@ -82,5 +82,35 @@ namespace WebApplication1.Controllers
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+        [HttpPut("update-profile")]
+        [Authorize]
+        public async Task<IActionResult> UpdateProfile(UpdateDto model) 
+        {
+            var user = await _userManager.FindByNameAsync(model.OldUsername);
+            if (user == null)
+            {
+                return NotFound("user not found");
+            }
+            if (!string.IsNullOrEmpty(model.newUsername))
+            {
+                user.UserName = model.newUsername;
+                var result = await _userManager.UpdateAsync(user);
+                if (!result.Succeeded)
+                {
+                    return BadRequest(result.Errors);
+                }
+            }
+
+            if (!string.IsNullOrEmpty(model.newPassword))
+            {
+                var Passresult = await _userManager.ChangePasswordAsync(user, model.OldPassword, model.newPassword);
+                if (!Passresult.Succeeded)
+                {
+                    return BadRequest(Passresult.Errors);
+                }
+            }
+            return Ok("user details Updated");
+        }
     }
 }
