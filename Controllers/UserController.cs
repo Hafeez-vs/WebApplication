@@ -101,7 +101,7 @@ namespace WebApplication1.Controllers
                     return BadRequest(result.Errors);
                 }
             }
-
+            //demo check
             if (!string.IsNullOrEmpty(model.newPassword))
             {
                 var Passresult = await _userManager.ChangePasswordAsync(user, model.OldPassword, model.newPassword);
